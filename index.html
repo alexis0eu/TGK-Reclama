@@ -88,7 +88,6 @@
       gap: 10px;
     }
 
-    /* Логотип сервера (твоя картинка) */
     .logo-image {
       width: 34px;
       height: 34px;
@@ -640,6 +639,7 @@
 
         <div class="members-row">
           <div class="member-avatars">
+            <!-- сюда бот‑скрипт подставит реальные аватары -->
             <img src="https://cdn.discordapp.com/avatars/809492510157570139/45929d60dc96dd45128adb7df327c7b4.webp?size=32" alt="member 1">
             <img src="https://cdn.discordapp.com/avatars/1139218286215712908/4f3ae42c38a6c4ddc15a9888e874df95.webp?size=24" alt="member 2">
             <img src="https://cdn.discordapp.com/avatars/310015112398503947/55b067e8647303cc71e6932d604b8d9a.webp?size=32" alt="member 3">
@@ -725,6 +725,7 @@
     </main>
   </div>
 
+  <!-- переключение темы -->
   <script>
     (function () {
       const root = document.documentElement;
@@ -768,6 +769,32 @@
         toggleBtn.addEventListener('click', toggleTheme);
       }
     })();
+  </script>
+
+  <!-- подтягиваем данные от бота -->
+  <script>
+    fetch('http://localhost:3000/tgk-status')
+      .then(r => r.json())
+      .then(data => {
+        if (!data.ok) return;
+
+        const navText = document.querySelector('header nav span:nth-of-type(2)');
+        if (navText) {
+          navText.textContent = `Онлайн: ${data.onlineMembers} из ${data.totalMembers}`;
+        }
+
+        const container = document.querySelector('.member-avatars');
+        if (container && Array.isArray(data.sampleMembers)) {
+          container.innerHTML = '';
+          data.sampleMembers.forEach(m => {
+            const img = document.createElement('img');
+            img.src = m.avatar;
+            img.alt = m.name;
+            container.appendChild(img);
+          });
+        }
+      })
+      .catch(console.error);
   </script>
 </body>
 </html>
