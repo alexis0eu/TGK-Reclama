@@ -564,6 +564,129 @@
         grid-template-columns: minmax(0, 1fr);
       }
     }
+
+    /* ====== VIDEO MODAL ====== */
+
+    .video-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 10% 0, rgba(96, 165, 250, 0.3), transparent 60%),
+                  radial-gradient(circle at 90% 100%, rgba(129, 140, 248, 0.35), transparent 55%),
+                  rgba(15, 23, 42, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      backdrop-filter: blur(26px) saturate(130%);
+    }
+
+    .video-modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .video-modal {
+      width: min(720px, 100% - 32px);
+      border-radius: 28px;
+      background: radial-gradient(circle at 0 0, rgba(96, 165, 250, 0.18), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.22), transparent 60%),
+                  rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.95);
+      padding: 18px 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    html[data-theme="light"] .video-modal {
+      background: radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.16), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.18), transparent 60%),
+                  rgba(248, 250, 252, 0.95);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+
+    .video-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    html[data-theme="light"] .video-modal-close {
+      background: rgba(15, 23, 42, 0.06);
+    }
+
+    .video-modal-close:hover {
+      transform: translateY(-1px);
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    .video-modal-header {
+      margin-bottom: 14px;
+    }
+
+    .video-modal-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(129, 140, 248, 0.6);
+      color: rgba(191, 219, 254, 0.95);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    html[data-theme="light"] .video-modal-chip {
+      background: rgba(15, 23, 42, 0.07);
+    }
+
+    .video-modal-header h2 {
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .video-modal-header p {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .video-modal-body {
+      margin-top: 10px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.8);
+      background: #020617;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+    }
+
+    html[data-theme="light"] .video-modal-body {
+      border-color: rgba(15, 23, 42, 0.7);
+      background: #020617;
+    }
+
+    .video-modal-player {
+      width: 100%;
+      height: auto;
+      display: block;
+      outline: none;
+    }
   </style>
 </head>
 <body>
@@ -639,7 +762,7 @@
 
         <div class="members-row">
           <div class="member-avatars">
-            <!-- сюда бот‑скрипт подставит реальные аватары -->
+            <!-- по умолчанию — заглушки, бот потом заменит -->
             <img src="https://cdn.discordapp.com/avatars/809492510157570139/45929d60dc96dd45128adb7df327c7b4.webp?size=32" alt="member 1">
             <img src="https://cdn.discordapp.com/avatars/1139218286215712908/4f3ae42c38a6c4ddc15a9888e874df95.webp?size=24" alt="member 2">
             <img src="https://cdn.discordapp.com/avatars/310015112398503947/55b067e8647303cc71e6932d604b8d9a.webp?size=32" alt="member 3">
@@ -723,6 +846,26 @@
         </article>
       </section>
     </main>
+
+    <!-- видео‑модалка -->
+    <div class="video-modal-backdrop" id="videoModal">
+      <div class="video-modal">
+        <button class="video-modal-close" type="button" id="videoModalClose" aria-label="Закрыть видео">
+          ✕
+        </button>
+        <div class="video-modal-header">
+          <span class="video-modal-chip">атмосфера TGK</span>
+          <h2>Как у нас проходит вечер</h2>
+          <p>Короткий клип прямо с сервера: игры, болтовня и тот самый ламповый вайб.</p>
+        </div>
+        <div class="video-modal-body">
+          <video id="tgkVideo" class="video-modal-player" controls preload="metadata">
+            <source src="https://cdn.discordapp.com/attachments/1405603776659849360/1469425702615908455/Clipchamp_1.mp4?ex=69884594&is=6986f414&hm=44a5e88a4826bbfe14270dc993924968e6c3dca776c695a82a77b3efb4b39325&" type="video/mp4">
+            Ваш браузер не поддерживает воспроизведение видео.
+          </video>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- переключение темы -->
@@ -771,33 +914,74 @@
     })();
   </script>
 
+  <!-- логика видео‑модалки -->
+  <script>
+    (function () {
+      const modal = document.getElementById('videoModal');
+      const openBtn = document.querySelector('.btn-secondary');
+      const closeBtn = document.getElementById('videoModalClose');
+      const video = document.getElementById('tgkVideo');
+
+      if (!modal || !openBtn || !closeBtn || !video) return;
+
+      function openModal() {
+        modal.classList.add('is-open');
+        try {
+          video.currentTime = 0;
+          video.play();
+        } catch (e) {}
+      }
+
+      function closeModal() {
+        modal.classList.remove('is-open');
+        try {
+          video.pause();
+        } catch (e) {}
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+          closeModal();
+        }
+      });
+    })();
+  </script>
+
   <!-- подтягиваем данные от бота -->
   <script>
-  const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status'; // потом заменишь на https://твой-домен/tgk-status
+    const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status'; /* замени на реальный URL Railway */
 
-  fetch(TGK_API_URL)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) return;
+    fetch(TGK_API_URL)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.ok) return;
 
-      const navText = document.querySelector('header nav span:nth-of-type(2)');
-      if (navText) {
-        navText.textContent = `Онлайн: ${data.onlineMembers} из ${data.totalMembers}`;
-      }
+        const navText = document.querySelector('header nav span:nth-of-type(2)');
+        if (navText) {
+          navText.textContent = `Онлайн: ${data.onlineMembers} из ${data.totalMembers}`;
+        }
 
-      const container = document.querySelector('.member-avatars');
-      if (container && Array.isArray(data.sampleMembers)) {
-        container.innerHTML = '';
-        data.sampleMembers.forEach(m => {
-          const img = document.createElement('img');
-          img.src = m.avatar;
-          img.alt = m.name;
-          container.appendChild(img);
-        });
-      }
-    })
-    .catch(console.error);
-</script>
-
+        const container = document.querySelector('.member-avatars');
+        if (container && Array.isArray(data.sampleMembers)) {
+          container.innerHTML = '';
+          data.sampleMembers.forEach(m => {
+            const img = document.createElement('img');
+            img.src = m.avatar;
+            img.alt = m.name;
+            container.appendChild(img);
+          });
+        }
+      })
+      .catch(console.error);
+  </script>
 </body>
 </html>
