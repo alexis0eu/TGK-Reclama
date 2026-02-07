@@ -4,803 +4,544 @@
   <meta charset="utf-8">
   <title>TGK — ламповый Discord сервер</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="TGK — ламповый Discord сервер для общения, игр и уютных посиделок. Заходи к нам и почувствуй атмосферу.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    :root {
-      --bg: #020617;
-      --bg-soft: rgba(15,23,42,0.7);
-      --accent: #6366f1;
-      --accent-soft: rgba(99,102,241,0.35);
-      --accent-strong: rgba(129,140,248,0.7);
-      --text: #e5e7eb;
-      --text-soft: #9ca3af;
-      --danger: #f97373;
-      --glass-border: rgba(148,163,184,0.5);
-      --shadow-soft: 0 24px 80px rgba(15,23,42,0.95);
-      --radius-lg: 26px;
-      --radius-md: 18px;
-      --radius-sm: 999px;
-      --transition-fast: 180ms ease-out;
-      --transition-slow: 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
-      --blur: 22px;
-      --noise-opacity: 0.09;
-      --gradient-1: radial-gradient(circle at 0% 0%, #22d3ee33 0, transparent 55%);
-      --gradient-2: radial-gradient(circle at 100% 100%, #6366f166 0, transparent 55%);
-    }
-
-    html[data-theme="light"] {
-      --bg: #f3f4f6;
-      --bg-soft: rgba(255,255,255,0.75);
-      --accent: #4f46e5;
-      --accent-soft: rgba(79,70,229,0.18);
-      --accent-strong: rgba(79,70,229,0.7);
-      --text: #111827;
-      --text-soft: #4b5563;
-      --glass-border: rgba(148,163,184,0.45);
-      --shadow-soft: 0 22px 70px rgba(15,23,42,0.16);
-      --noise-opacity: 0.06;
-      --gradient-1: radial-gradient(circle at 0% 0%, #38bdf833 0, transparent 55%);
-      --gradient-2: radial-gradient(circle at 100% 100%, #a855f733 0, transparent 55%);
-    }
-
-    * {
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
+    :root {
+      --bg: #050816;
+      --bg-alt: rgba(15, 23, 42, 0.8);
+      --accent: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.2);
+      --text: #e5e7eb;
+      --text-muted: #9ca3af;
+      --glass: rgba(15, 23, 42, 0.6);
+      --border-glass: rgba(148, 163, 184, 0.3);
+      --shadow-soft: 0 18px 60px rgba(15, 23, 42, 0.75);
+      --blur-amount: 24px;
+      --radius-xl: 28px;
+      --radius-pill: 999px;
+      --transition-fast: 0.18s ease-out;
+      --transition-slow: 0.35s ease;
+    }
+
+    html[data-theme="light"] {
+      --bg: #e5e7eb;
+      --bg-alt: rgba(248, 250, 252, 0.9);
+      --accent: #4f46e5;
+      --accent-soft: rgba(79, 70, 229, 0.12);
+      --text: #020617;
+      --text-muted: #4b5563;
+      --glass: rgba(255, 255, 255, 0.7);
+      --border-glass: rgba(148, 163, 184, 0.35);
+      --shadow-soft: 0 18px 60px rgba(15, 23, 42, 0.12);
+      --blur-amount: 22px;
+    }
+
     body {
       min-height: 100vh;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
       background:
-        var(--gradient-1),
-        var(--gradient-2),
-        radial-gradient(circle at 50% -20%, #0ea5e944 0, transparent 55%),
-        linear-gradient(145deg, #020617 0, #020617 25%, #020617 50%, #020617 75%, #020617 100%);
-      background-color: var(--bg);
+        radial-gradient(circle at 10% 0, rgba(96, 165, 250, 0.16), transparent 60%),
+        radial-gradient(circle at 90% 100%, rgba(129, 140, 248, 0.2), transparent 55%),
+        radial-gradient(circle at 0 100%, rgba(244, 114, 182, 0.18), transparent 50%),
+        var(--bg);
       color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
       -webkit-font-smoothing: antialiased;
-      position: relative;
-      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 20px;
     }
 
-    /* мягкие «плавающие» пятна */
-    .orb {
-      position: fixed;
-      border-radius: 999px;
-      filter: blur(32px);
-      opacity: 0.9;
-      pointer-events: none;
-      mix-blend-mode: screen;
-      z-index: -1;
-      animation: float 16s infinite alternate ease-in-out;
-    }
-
-    .orb.orb-1 {
-      width: 360px;
-      height: 360px;
-      background: #6366f133;
-      top: -60px;
-      left: -40px;
-    }
-
-    .orb.orb-2 {
-      width: 460px;
-      height: 460px;
-      background: #22c55e22;
-      bottom: -120px;
-      right: -60px;
-      animation-duration: 20s;
-    }
-
-    .orb.orb-3 {
-      width: 260px;
-      height: 260px;
-      background: #0ea5e944;
-      bottom: 10%;
-      left: 15%;
-      animation-duration: 22s;
-    }
-
-    @keyframes float {
-      0% { transform: translate3d(0,0,0) scale(1); }
-      50% { transform: translate3d(16px,-10px,0) scale(1.03); }
-      100% { transform: translate3d(-12px,18px,0) scale(1.06); }
-    }
-
-    .noise-layer {
-      pointer-events: none;
-      position: fixed;
-      inset: -40px;
-      opacity: var(--noise-opacity);
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='noStitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
-      mix-blend-mode: soft-light;
-      z-index: 0;
-    }
-
-    .shell {
-      position: relative;
+    .page {
       width: 100%;
-      max-width: 1040px;
-      border-radius: 32px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(148,163,184,0.7), rgba(79,70,229,0.7), rgba(56,189,248,0.45));
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-      z-index: 1;
-    }
-
-    .frame {
-      position: relative;
-      border-radius: 30px;
-      padding: 20px 22px 22px;
-      background:
-        linear-gradient(145deg, rgba(15,23,42,0.92), rgba(15,23,42,0.90), rgba(15,23,42,0.86)),
-        linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.94));
-      background-color: rgba(15,23,42,0.92);
-      backdrop-filter: blur(26px) saturate(140%);
-      -webkit-backdrop-filter: blur(26px) saturate(140%);
-      border: 1px solid rgba(148,163,184,0.55);
+      max-width: 1120px;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      transition: transform var(--transition-slow), box-shadow var(--transition-slow), background-color var(--transition-fast), border-color var(--transition-fast);
-    }
-
-    html[data-theme="light"] .frame {
-      background:
-        linear-gradient(145deg, rgba(248,250,252,0.84), rgba(241,245,249,0.88)),
-        linear-gradient(135deg, rgba(248,250,252,0.88), rgba(241,245,249,0.9));
-      background-color: rgba(248,250,252,0.9);
-      border-color: rgba(226,232,240,0.95);
-    }
-
-    .frame:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 26px 90px rgba(15,23,42,0.85);
+      backdrop-filter: blur(32px);
     }
 
     header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.25));
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      position: sticky;
+      top: 12px;
+      z-index: 20;
+      backdrop-filter: blur(24px) saturate(130%);
     }
 
-    .brand {
+    .logo-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .logo-orb {
-      width: 32px;
-      height: 32px;
-      border-radius: 30%;
-      background:
-        radial-gradient(circle at 0% 0%, #e0f2fe 0, transparent 55%),
-        radial-gradient(circle at 100% 100%, #a855f7 0, transparent 55%),
-        linear-gradient(145deg, #6366f1, #22d3ee);
-      position: relative;
-      box-shadow:
-        0 0 0 1px rgba(15,23,42,0.55),
-        0 14px 30px rgba(15,23,42,0.9);
+    /* Логотип сервера (твоя картинка) */
+    .logo-image {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
       overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow:
+        0 10px 24px rgba(15, 23, 42, 0.8),
+        0 0 14px rgba(96, 165, 250, 0.7);
+      flex-shrink: 0;
     }
 
-    .logo-orb::after {
-      content: "";
-      position: absolute;
-      inset: 2px 6px 8px;
-      border-radius: 999px;
-      background: linear-gradient(145deg, rgba(15,23,42,0.95), rgba(30,64,175,0.6));
-      opacity: 0.45;
+    .logo-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .brand-name {
-      font-size: 15px;
+    .logo-text-main {
       font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
 
-    .brand-tagline {
+    .logo-text-sub {
       font-size: 11px;
-      color: var(--text-soft);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      color: var(--text-muted);
     }
 
-    .header-actions {
+    nav {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--text-muted);
     }
 
-    .theme-toggle {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 86px;
-      padding: 4px;
+    .nav-pill {
+      padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.20), transparent 60%),
-                  linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.85));
-      backdrop-filter: blur(20px) saturate(140%);
-      -webkit-backdrop-filter: blur(20px) saturate(140%);
-      cursor: pointer;
-      color: var(--text-soft);
-      font-size: 11px;
-      box-shadow: 0 14px 34px rgba(15,23,42,0.75);
-      overflow: hidden;
-    }
-
-    html[data-theme="light"] .theme-toggle {
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.75), transparent 60%),
-                  linear-gradient(135deg, rgba(248,250,252,0.96), rgba(241,245,249,0.96));
-    }
-
-    .theme-toggle span {
-      flex: 1;
-      text-align: center;
-      z-index: 1;
-      user-select: none;
-    }
-
-    .theme-toggle-knob {
-      position: absolute;
-      top: 3px;
-      bottom: 3px;
-      width: calc(50% - 6px);
-      border-radius: 999px;
-      background: radial-gradient(circle at 0 0, rgba(248,250,252,0.9), transparent 65%),
-                  linear-gradient(145deg, rgba(248,250,252,0.96), rgba(226,232,240,0.96));
-      box-shadow:
-        0 10px 26px rgba(15,23,42,0.6),
-        0 0 0 1px rgba(148,163,184,0.6);
-      transform: translateX(0);
-      transition: transform var(--transition-slow);
-    }
-
-    html[data-theme="light"] .theme-toggle-knob {
-      transform: translateX(100%);
-    }
-
-    .pill-live {
-      display: inline-flex;
+      background: rgba(15, 23, 42, 0.35);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      display: flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(52,211,153,0.65);
-      background: linear-gradient(135deg, rgba(22,163,74,0.22), rgba(16,185,129,0.16));
-      font-size: 11px;
-      color: #bbf7d0;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
     }
 
-    html[data-theme="light"] .pill-live {
-      background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(16,185,129,0.06));
-      color: #166534;
-    }
-
-    .pill-dot {
+    .nav-dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
       background: #22c55e;
-      box-shadow: 0 0 0 6px rgba(34,197,94,0.28);
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.25);
     }
 
-    .main {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
-      gap: 24px;
-      align-items: center;
-    }
-
-    .hero-meta {
+    .theme-toggle {
+      width: 40px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.5);
       display: flex;
-      flex-direction: column;
-      gap: 16px;
+      align-items: center;
+      padding: 2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
 
-    .hero-eyebrow {
-      display: inline-flex;
+    .theme-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #f97316, #ea580c);
+      box-shadow: 0 8px 14px rgba(249, 115, 22, 0.65);
+      transform: translateX(0);
+      transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    html[data-theme="light"] .theme-thumb {
+      transform: translateX(16px);
+      background: radial-gradient(circle at 30% 30%, #38bdf8, #0ea5e9);
+      box-shadow: 0 8px 16px rgba(56, 189, 248, 0.6);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-card {
+      border-radius: 32px;
+      background: radial-gradient(circle at 0 0, rgba(96, 165, 250, 0.15), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.2), transparent 60%),
+                  var(--glass);
+      border: 1px solid var(--border-glass);
+      box-shadow: var(--shadow-soft);
+      padding: 26px 26px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-chip-row {
+      display: flex;
       align-items: center;
       gap: 10px;
+      margin-bottom: 18px;
       font-size: 12px;
-      color: var(--text-soft);
     }
 
-    .divider-dot {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(148,163,184,0.8);
+    .hero-chip {
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .sparkle {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: conic-gradient(from 180deg, #a855f7, #22c55e, #38bdf8, #a855f7);
+      box-shadow:
+        0 0 10px rgba(129, 140, 248, 0.8),
+        0 0 24px rgba(56, 189, 248, 0.9);
     }
 
     .hero-title {
-      font-size: clamp(30px, 4vw, 38px);
+      font-size: clamp(28px, 3.1vw, 34px);
       line-height: 1.1;
-      letter-spacing: -0.04em;
-      font-weight: 700;
+      font-weight: 750;
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
     }
 
-    .hero-gradient {
-      background: linear-gradient(135deg, #e5e7eb, #c4b5fd, #38bdf8);
+    .hero-highlight {
+      background: linear-gradient(120deg, #a855f7, #22c55e, #38bdf8);
       -webkit-background-clip: text;
-      background-clip: text;
       color: transparent;
-    }
-
-    html[data-theme="light"] .hero-gradient {
-      background: linear-gradient(135deg, #111827, #4f46e5, #0ea5e9);
     }
 
     .hero-subtitle {
       font-size: 14px;
-      color: var(--text-soft);
-      line-height: 1.5;
-      max-width: 420px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin-bottom: 18px;
     }
 
     .hero-cta-row {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
       gap: 12px;
-      margin-top: 4px;
+      align-items: center;
+      margin-bottom: 18px;
     }
 
-    .cta-primary {
-      position: relative;
+    .btn-primary {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 10px 20px;
+      padding: 11px 22px;
       border-radius: 999px;
-      border: 1px solid rgba(191,219,254,0.8);
-      background:
-        radial-gradient(circle at 0 0, rgba(248,250,252,0.95), transparent 60%),
-        linear-gradient(135deg, #4f46e5, #6366f1, #0ea5e9);
-      color: #eff6ff;
+      background: radial-gradient(circle at 0 0, #a855f7, #4f46e5);
+      color: #f9fafb;
+      border: none;
+      cursor: pointer;
       font-size: 14px;
       font-weight: 600;
+      box-shadow:
+        0 14px 35px rgba(79, 70, 229, 0.9),
+        0 0 26px rgba(129, 140, 248, 0.9);
       text-decoration: none;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px) scale(1.01);
       box-shadow:
-        0 20px 40px rgba(15,23,42,0.9),
-        0 0 0 1px rgba(15,23,42,0.4);
+        0 18px 40px rgba(79, 70, 229, 1),
+        0 0 32px rgba(96, 165, 250, 1);
+    }
+
+    .btn-secondary {
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
+      font-size: 13px;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
       cursor: pointer;
-      overflow: hidden;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-position 300ms ease-out;
-      background-size: 160% 160%;
-      background-position: 0% 50%;
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
     }
 
-    .cta-primary span {
-      position: relative;
-      z-index: 1;
-    }
-
-    .cta-primary::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.55), transparent 55%);
-      opacity: 0;
-      transition: opacity 220ms ease-out;
-    }
-
-    .cta-primary:hover {
+    .btn-secondary:hover {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(148, 163, 184, 0.7);
+      color: var(--text);
       transform: translateY(-1px);
-      box-shadow:
-        0 26px 60px rgba(15,23,42,0.92),
-        0 0 0 1px rgba(15,23,42,0.7);
-      background-position: 100% 50%;
     }
 
-    .cta-primary:hover::after {
-      opacity: 1;
-    }
-
-    .cta-primary:active {
-      transform: translateY(0);
-      box-shadow:
-        0 12px 26px rgba(15,23,42,0.92),
-        0 0 0 1px rgba(15,23,42,0.7);
-    }
-
-    .cta-icon {
-      font-size: 16px;
-      transform: translateY(1px);
-    }
-
-    .meta-row {
+    .hero-meta {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--text-soft);
-      margin-top: 4px;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
     }
 
     .meta-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.5);
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.08), transparent 60%);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
     }
 
     .meta-dot {
       width: 6px;
       height: 6px;
       border-radius: 999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 5px var(--accent-soft);
+      background: #22c55e;
     }
 
-    .meta-avatars {
-      display: inline-flex;
+    .members-row {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .member-avatars {
+      display: flex;
       align-items: center;
     }
 
-    .meta-avatars span {
-      width: 18px;
-      height: 18px;
+    .member-avatars img {
+      width: 26px;
+      height: 26px;
       border-radius: 999px;
-      border: 1px solid rgba(15,23,42,0.9);
-      background: linear-gradient(145deg, #4f46e5, #22d3ee);
-      box-shadow: 0 6px 15px rgba(15,23,42,0.9);
-      display: inline-block;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.8);
+      object-fit: cover;
     }
 
-    .meta-avatars span + span {
-      margin-left: -8px;
+    .member-avatars img + img {
+      margin-left: -10px;
     }
 
-    .meta-avatars span:nth-child(2) {
-      background: linear-gradient(145deg, #22c55e, #16a34a);
-    }
-    .meta-avatars span:nth-child(3) {
-      background: linear-gradient(145deg, #f97316, #ec4899);
+    .members-count {
+      font-weight: 500;
+      color: var(--text);
     }
 
-    .meta-count {
-      margin-left: 4px;
-    }
-
-    .glass-panel {
-      position: relative;
-      border-radius: var(--radius-lg);
-      padding: 16px;
-      background: radial-gradient(circle at 0 0, rgba(241,245,249,0.14), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(15,23,42,0.35), transparent 55%),
-                  linear-gradient(145deg, var(--bg-soft), rgba(15,23,42,0.92));
-      backdrop-filter: blur(var(--blur)) saturate(155%);
-      -webkit-backdrop-filter: blur(var(--blur)) saturate(155%);
-      border: 1px solid var(--glass-border);
-      box-shadow: 0 20px 55px rgba(15,23,42,0.88);
-      overflow: hidden;
-      isolation: isolate;
-    }
-
-    html[data-theme="light"] .glass-panel {
-      background: radial-gradient(circle at 0 0, rgba(255,255,255,0.85), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(226,232,240,0.85), transparent 55%),
-                  linear-gradient(145deg, rgba(255,255,255,0.86), rgba(241,245,249,0.96));
-      border-color: rgba(226,232,240,0.95);
-      box-shadow: 0 18px 60px rgba(148,163,184,0.4);
-    }
-
-    .glass-panel::before {
-      content: "";
+    .hero-orb-large, .hero-orb-small {
       position: absolute;
-      inset: -40%;
-      background: conic-gradient(
-        from 180deg,
-        rgba(248,250,252,0.1),
-        rgba(129,140,248,0.15),
-        rgba(56,189,248,0.06),
-        transparent,
-        transparent
-      );
-      opacity: 0.85;
-      transform: translate3d(0,0,0);
-      animation: shimmer 26s infinite linear;
+      border-radius: 999px;
+      filter: blur(18px);
+      opacity: 0.45;
       pointer-events: none;
     }
 
-    @keyframes shimmer {
-      0% { transform: translate3d(-10%, -10%, 0) rotate(0deg); }
-      50% { transform: translate3d(10%, 5%, 0) rotate(180deg); }
-      100% { transform: translate3d(-10%, -10%, 0) rotate(360deg); }
+    .hero-orb-large {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle at 30% 30%, rgba(96, 165, 250, 0.9), transparent 60%);
+      top: -80px;
+      right: -60px;
     }
 
-    .glass-content {
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
-      gap: 16px;
-      align-items: center;
+    .hero-orb-small {
+      width: 160px;
+      height: 160px;
+      background: radial-gradient(circle at 40% 40%, rgba(244, 114, 182, 0.9), transparent 65%);
+      bottom: -60px;
+      left: -40px;
     }
 
-    .list {
+    .info-column {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      font-size: 13px;
-      color: var(--text-soft);
+      gap: 14px;
     }
 
-    .list-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .bullet {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 0 0, rgba(248,250,252,0.85), transparent 65%),
-                  linear-gradient(145deg, var(--accent), #22c55e);
-      box-shadow: 0 10px 20px rgba(15,23,42,0.8);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #0f172a;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .bullet-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #0f172a;
-    }
-
-    .list strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(129,140,248,0.65);
-      background: linear-gradient(135deg, rgba(129,140,248,0.15), rgba(59,130,246,0.12));
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    html[data-theme="light"] .badge {
-      background: linear-gradient(135deg, rgba(129,140,248,0.06), rgba(59,130,246,0.04));
-    }
-
-    .badge-icon {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: linear-gradient(145deg, #38bdf8, #6366f1);
-      box-shadow: 0 0 0 4px rgba(56,189,248,0.35);
-    }
-
-    .glass-side {
+    .card {
+      border-radius: 26px;
+      background: var(--glass);
+      border: 1px solid var(--border-glass);
+      box-shadow: var(--shadow-soft);
+      padding: 16px 18px;
       position: relative;
-      height: 170px;
-      border-radius: 20px;
       overflow: hidden;
-      background:
-        radial-gradient(circle at 0 0, rgba(248,250,252,0.4), transparent 65%),
-        radial-gradient(circle at 100% 100%, rgba(15,23,42,0.7), transparent 65%),
-        linear-gradient(145deg, rgba(15,23,42,0.98), rgba(15,23,42,0.92));
+    }
+
+    .card-header-row {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
 
-    html[data-theme="light"] .glass-side {
-      background:
-        radial-gradient(circle at 0 0, rgba(255,255,255,0.85), transparent 65%),
-        radial-gradient(circle at 100% 100%, rgba(226,232,240,0.9), transparent 65%),
-        linear-gradient(145deg, rgba(248,250,252,0.98), rgba(241,245,249,0.96));
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
     }
 
-    .server-card {
-      position: relative;
-      padding: 14px 16px;
+    .card-tag {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-muted);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
+    .feature-pill {
+      padding: 9px 10px;
       border-radius: 18px;
-      background:
-        linear-gradient(135deg, rgba(15,23,42,0.84), rgba(15,23,42,0.9));
-      border: 1px solid rgba(148,163,184,0.8);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      width: 100%;
-      max-width: 240px;
-      box-shadow: 0 18px 40px rgba(15,23,42,0.95);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    html[data-theme="light"] .server-card {
-      background: linear-gradient(135deg, rgba(15,23,42,0.94), rgba(15,23,42,0.96));
-    }
-
-    .server-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .server-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 12px;
-      background:
-        radial-gradient(circle at 0 0, #dbeafe, transparent 60%),
-        radial-gradient(circle at 100% 100%, #f97316, transparent 55%),
-        linear-gradient(145deg, #4f46e5, #22c55e);
-      box-shadow: 0 12px 25px rgba(15,23,42,0.95);
-    }
-
-    .server-info {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.5);
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .server-name {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+    .feature-label {
+      font-weight: 500;
     }
 
-    .server-status {
+    .feature-sub {
+      color: var(--text-muted);
       font-size: 11px;
-      color: #a5b4fc;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 5px rgba(34,197,94,0.3);
-    }
-
-    .server-pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .server-pill {
-      padding: 4px 7px;
-      border-radius: 999px;
-      font-size: 10px;
-      color: #e5e7eb;
-      background: rgba(31,41,55,0.9);
-      border: 1px solid rgba(75,85,99,0.9);
-    }
-
-    .server-footer {
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .server-online {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .server-kbd {
-      padding: 4px 7px;
-      border-radius: 8px;
-      border: 1px solid rgba(148,163,184,0.9);
-      background: rgba(15,23,42,0.95);
-      font-size: 10px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #e5e7eb;
     }
 
     .quote {
-      font-size: 12px;
-      color: var(--text-soft);
-      margin-top: 6px;
-      border-left: 1px solid rgba(148,163,184,0.7);
-      padding-left: 10px;
-      line-height: 1.4;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-top: 4px;
     }
 
     .quote strong {
       color: var(--text);
+    }
+
+    .badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .badge-soft {
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(129, 140, 248, 0.45);
       font-weight: 500;
     }
 
-    footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-top: 4px;
-      font-size: 11px;
-      color: var(--text-soft);
-      flex-wrap: wrap;
+    .soft-orb {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(96, 165, 250, 0.22), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.8;
+      pointer-events: none;
     }
 
-    .tiny {
-      opacity: 0.85;
+    .metrics-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+      font-size: 12px;
+    }
+
+    .metric {
+      padding: 7px 9px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex;
+      flex-direction: column;
+      min-width: 90px;
+    }
+
+    .metric-value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .footer {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
     }
 
     .footer-links {
       display: flex;
-      align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
-    .footer-pill {
-      padding: 4px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.6);
-      background: rgba(15,23,42,0.75);
+    .footer-link {
+      opacity: 0.7;
+      cursor: pointer;
+      transition: opacity var(--transition-fast), transform var(--transition-fast);
     }
 
-    html[data-theme="light"] .footer-pill {
-      background: rgba(241,245,249,0.8);
+    .footer-link:hover {
+      opacity: 1;
+      transform: translateY(-1px);
     }
 
-    /* адаптив */
-    @media (max-width: 880px) {
-      .main {
+    @media (max-width: 900px) {
+      main {
         grid-template-columns: minmax(0, 1fr);
       }
-      .glass-content {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .glass-side {
-        order: -1;
-        height: 190px;
+      header {
+        border-radius: 24px;
       }
     }
 
@@ -808,189 +549,208 @@
       body {
         padding: 12px;
       }
-      .shell {
-        border-radius: 26px;
-      }
-      .frame {
-        border-radius: 24px;
-        padding: 16px 14px 16px;
-      }
       header {
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 10px 12px;
       }
-      .header-actions {
-        width: 100%;
-        justify-content: space-between;
+      nav {
+        gap: 10px;
       }
-      .hero-title {
-        font-size: 26px;
+      .hero-card {
+        padding: 20px 18px 18px;
       }
-      .hero-subtitle {
-        font-size: 13px;
-      }
-      .glass-panel {
+      .card {
         padding: 14px;
       }
-      .glass-side {
-        height: 180px;
+      .features-grid {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-  <div class="noise-layer"></div>
-
-  <div class="shell">
-    <div class="frame">
-      <header>
-        <div class="brand">
-          <div class="logo-orb"></div>
-          <div class="brand-text">
-            <div class="brand-name">TGK</div>
-            <div class="brand-tagline">Discord server</div>
-          </div>
+  <div class="page">
+    <header>
+      <div class="logo-wrap">
+        <div class="logo-image">
+          <img src="https://cdn.discordapp.com/attachments/1414028162794262628/1452754352329724055/oGzvoyT.png?ex=6988442c&is=6986f2ac&hm=55bbf982266cd15e868a221a060123f7f14e84350abbb9f2b7dfd562afd44c09&" alt="TGK server logo">
         </div>
-        <div class="header-actions">
-          <div class="pill-live">
-            <span class="pill-dot"></span>
-            сейчас онлайн
+        <div>
+          <div class="logo-text-main">TGK</div>
+          <div class="logo-text-sub">ламповый Discord‑сервер</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-pill">
+          <span class="nav-dot"></span>
+          <span>Онлайн прямо сейчас</span>
+        </div>
+        <span>Игры • шутки • ночные созвоны</span>
+        <button id="themeToggle" class="theme-toggle" aria-label="Переключить тему">
+          <div class="theme-thumb"></div>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero-card">
+        <div class="hero-chip-row">
+          <div class="hero-chip">
+            <div class="sparkle"></div>
+            <span>Уютный уголок твоего дискорда</span>
           </div>
-          <button class="theme-toggle" type="button" id="themeToggle" aria-label="Переключить тему">
-            <span>☾</span>
-            <span>☀︎</span>
-            <div class="theme-toggle-knob"></div>
+          <span style="font-size:12px; color:var(--text-muted);">без токсиков и скуки</span>
+        </div>
+
+        <h1 class="hero-title">
+          TGK — <span class="hero-highlight">ламповый сервер</span><br>
+          где свой каждый вечер
+        </h1>
+
+        <p class="hero-subtitle">
+          Залетай в голос, катай в игры, обсуждай школу, мемы и всё, что угодно. 
+          Никакого официоза — только дружеская атмосфера и тёплые вайбы.
+        </p>
+
+        <div class="hero-cta-row">
+          <a class="btn-primary" href="https://discord.gg/qZcjtVBw" target="_blank" rel="noopener">
+            Зайти на сервер
+            <span style="font-size:18px;">➜</span>
+          </a>
+          <button class="btn-secondary" type="button">
+            Посмотреть атмосферу
+            <span style="font-size:14px; opacity:0.8;">👀</span>
           </button>
         </div>
-      </header>
 
-      <main class="main">
-        <section class="hero-meta" aria-label="Описание сервера TGK">
-          <div class="hero-eyebrow">
-            <span>Ламповый уголок в Discord</span>
-            <span class="divider-dot"></span>
-            <span>общение, игры, музыка</span>
+        <div class="hero-meta">
+          <div class="meta-pill">
+            <span class="meta-dot"></span>
+            <span>Живой чат 24/7</span>
           </div>
-          <h1 class="hero-title">
-            Залетай на <span class="hero-gradient">TGK</span> — сервер, куда хочется возвращаться.
-          </h1>
-          <p class="hero-subtitle">
-            Уютные вечера в голосе, школьные разговоры, киберкатки и мемы без токсика — всё в одном месте. 
-            Просто нажми на кнопку ниже и присоединяйся к нашей атмосфере.
-          </p>
-          <div class="hero-cta-row">
-            <a class="cta-primary" href="https://discord.gg/qZcjtVBw" target="_blank" rel="noopener">
-              <span>Зайти на сервер TGK</span>
-              <span class="cta-icon">↗</span>
-            </a>
-            <div class="meta-row">
-              <div class="meta-pill">
-                <span class="meta-dot"></span>
-                теплая комьюнити без лишнего шума
-              </div>
-            </div>
+          <div class="meta-pill">
+            <span style="width:6px; height:6px; border-radius:999px; background:#38bdf8;"></span>
+            <span>Игровые вечера и совместные катки</span>
           </div>
-          <div class="meta-row" style="margin-top: 6px;">
-            <div class="meta-avatars">
-              <span></span><span></span><span></span>
-            </div>
-            <span class="meta-count">+ десятки участников уже с нами</span>
+          <div class="meta-pill">
+            <span style="width:6px; height:6px; border-radius:999px; background:#a855f7;"></span>
+            <span>Музыка, мемы, розыгрыши</span>
           </div>
-        </section>
-
-        <section class="glass-panel" aria-label="Фичи и атмосфера TGK">
-          <div class="glass-content">
-            <div class="list">
-              <div class="badge">
-                <span class="badge-icon"></span>
-                Сделано, чтобы было приятно глазу
-              </div>
-              <div class="list-row">
-                <div class="bullet"><div class="bullet-dot"></div></div>
-                <div><strong>Ламповое общение.</strong> Спокойные чатики, уютные разговоры и люди, к которым хочется возвращаться.</div>
-              </div>
-              <div class="list-row">
-                <div class="bullet"><div class="bullet-dot"></div></div>
-                <div><strong>Игровые вечера.</strong> Катки в любимые игры, тимплей и расслабленный голос, а не ор и токсик.</div>
-              </div>
-              <div class="list-row">
-                <div class="bullet"><div class="bullet-dot"></div></div>
-                <div><strong>Музыка и chill.</strong> Ло‑фи, плейлисты и комфортный фон, пока ты делаешь дела или просто зависаешь.</div>
-              </div>
-            </div>
-            <div class="glass-side">
-              <div class="server-card">
-                <div class="server-header">
-                  <div class="server-avatar"></div>
-                  <div class="server-info">
-                    <div class="server-name">TGK · Discord</div>
-                    <div class="server-status">
-                      <span class="status-dot"></span>
-                      уютный сервер онлайн
-                    </div>
-                  </div>
-                </div>
-                <div class="server-pill-row">
-                  <div class="server-pill">чилл общение</div>
-                  <div class="server-pill">игровые комнаты</div>
-                  <div class="server-pill">мемы &amp; музыка</div>
-                </div>
-                <div class="server-footer">
-                  <div class="server-online">
-                    <span class="status-dot" style="box-shadow:none;width:6px;height:6px;"></span>
-                    <span>онлайн друзья уже внутри</span>
-                  </div>
-                  <div class="server-kbd">join</div>
-                </div>
-                <div class="quote">
-                  <strong>«Ещё один сервер?»</strong>  
-                  Заходишь — и остаёшься, потому что тут по‑домашнему, без лишнего шума.
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <span class="tiny">Нажимая «Зайти на сервер TGK», ты переходишь в Discord и можешь сразу присоединиться к нам.</span>
-        <div class="footer-links">
-          <span class="footer-pill">лучший и ламповый сервер — TGK</span>
         </div>
-      </footer>
-    </div>
+
+        <div class="members-row">
+          <div class="member-avatars">
+            <img src="https://cdn.discordapp.com/avatars/809492510157570139/45929d60dc96dd45128adb7df327c7b4.webp?size=32" alt="member 1">
+            <img src="https://cdn.discordapp.com/avatars/1139218286215712908/4f3ae42c38a6c4ddc15a9888e874df95.webp?size=24" alt="member 2">
+            <img src="https://cdn.discordapp.com/avatars/310015112398503947/55b067e8647303cc71e6932d604b8d9a.webp?size=32" alt="member 3">
+          </div>
+          <div>
+            <div class="members-count">Десятки участников уже с нами</div>
+            <div>Присоединяйся и стань частью тусовки TGK</div>
+          </div>
+        </div>
+
+        <div class="hero-orb-large"></div>
+        <div class="hero-orb-small"></div>
+      </section>
+
+      <section class="info-column">
+        <article class="card">
+          <div class="soft-orb"></div>
+          <div class="card-header-row">
+            <div class="card-title">Что тебя ждёт в TGK</div>
+            <div class="card-tag">атмосфера важнее всего</div>
+          </div>
+          <div class="features-grid">
+            <div class="feature-pill">
+              <div class="feature-label">Игровые вечера</div>
+              <div class="feature-sub">CS:GO, Fortnite и не только — собираемся и катаем вместе.</div>
+            </div>
+            <div class="feature-pill">
+              <div class="feature-label">Чат про школу</div>
+              <div class="feature-sub">Домашка, контрольные, МЭШ — обсудим, посоветуем, поддержим.</div>
+            </div>
+            <div class="feature-pill">
+              <div class="feature-label">Музыка и мемы</div>
+              <div class="feature-sub">Музыкальный бот, плейлисты и свежие приколы каждый день.</div>
+            </div>
+            <div class="feature-pill">
+              <div class="feature-label">Ночные созвоны</div>
+              <div class="feature-sub">Те самые душные разговоры до 3 ночи, которые запоминаются.</div>
+            </div>
+          </div>
+          <div class="badge-row">
+            <span class="badge-soft">Без токсичности</span>
+            <span>Адекваты модеры, уютные правила и живое комьюнити.</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header-row">
+            <div class="card-title">Отзывы ребят</div>
+            <div class="card-tag">реальные эмоции</div>
+          </div>
+          <p class="quote">
+            «Зашёл просто поиграть пару каток, а в итоге нашёл компанию, с которой теперь почти каждый день
+            в голосе. TGK теперь как вторая тусовка после школы».
+          </p>
+          <div class="badge-row">
+            <span>⚡</span>
+            <span>Постоянные новые люди, при этом ламповая атмосфера не пропадает.</span>
+          </div>
+          <div class="metrics-row">
+            <div class="metric">
+              <span class="metric-value">90%+</span>
+              <span class="metric-label">остаются после первого захода</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">24/7</span>
+              <span class="metric-label">кто‑то есть в сети почти всегда</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">∞</span>
+              <span class="metric-label">мемов и историй</span>
+            </div>
+          </div>
+          <div class="footer">
+            <span>Готов залететь? Жмякай «Зайти на сервер» и врывайся к нам.</span>
+            <div class="footer-links">
+              <span class="footer-link">Правила</span>
+              <span class="footer-link">Каналы</span>
+              <span class="footer-link">Бот</span>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
   </div>
 
   <script>
     (function () {
       const root = document.documentElement;
-      const STORAGE_KEY = 'tgk-theme';
-
-      function getSystemPrefersDark() {
-        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-      }
 
       function applyTheme(theme) {
         root.setAttribute('data-theme', theme);
         try {
-          localStorage.setItem(STORAGE_KEY, theme);
+          localStorage.setItem('tgk-theme', theme);
         } catch (e) {}
+      }
+
+      function systemPrefersDark() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
 
       function initTheme() {
         let theme = 'dark';
         try {
-          const stored = localStorage.getItem(STORAGE_KEY);
-          if (stored === 'light' || stored === 'dark') {
-            theme = stored;
+          const saved = localStorage.getItem('tgk-theme');
+          if (saved === 'light' || saved === 'dark') {
+            theme = saved;
           } else {
-            theme = getSystemPrefersDark() ? 'dark' : 'light';
+            theme = systemPrefersDark() ? 'dark' : 'light';
           }
         } catch (e) {
-          theme = getSystemPrefersDark() ? 'dark' : 'light';
+          theme = systemPrefersDark() ? 'dark' : 'light';
         }
         applyTheme(theme);
       }
