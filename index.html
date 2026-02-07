@@ -773,28 +773,31 @@
 
   <!-- подтягиваем данные от бота -->
   <script>
-    fetch('http://localhost:3000/tgk-status')
-      .then(r => r.json())
-      .then(data => {
-        if (!data.ok) return;
+  const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status'; // потом заменишь на https://твой-домен/tgk-status
 
-        const navText = document.querySelector('header nav span:nth-of-type(2)');
-        if (navText) {
-          navText.textContent = `Онлайн: ${data.onlineMembers} из ${data.totalMembers}`;
-        }
+  fetch(TGK_API_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) return;
 
-        const container = document.querySelector('.member-avatars');
-        if (container && Array.isArray(data.sampleMembers)) {
-          container.innerHTML = '';
-          data.sampleMembers.forEach(m => {
-            const img = document.createElement('img');
-            img.src = m.avatar;
-            img.alt = m.name;
-            container.appendChild(img);
-          });
-        }
-      })
-      .catch(console.error);
-  </script>
+      const navText = document.querySelector('header nav span:nth-of-type(2)');
+      if (navText) {
+        navText.textContent = `Онлайн: ${data.onlineMembers} из ${data.totalMembers}`;
+      }
+
+      const container = document.querySelector('.member-avatars');
+      if (container && Array.isArray(data.sampleMembers)) {
+        container.innerHTML = '';
+        data.sampleMembers.forEach(m => {
+          const img = document.createElement('img');
+          img.src = m.avatar;
+          img.alt = m.name;
+          container.appendChild(img);
+        });
+      }
+    })
+    .catch(console.error);
+</script>
+
 </body>
 </html>
