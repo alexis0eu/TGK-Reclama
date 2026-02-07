@@ -667,27 +667,6 @@
       color: var(--text-muted);
     }
 
-    .video-modal-body {
-      margin-top: 10px;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid rgba(15, 23, 42, 0.8);
-      background: #020617;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
-    }
-
-    html[data-theme="light"] .video-modal-body {
-      border-color: rgba(15, 23, 42, 0.7);
-      background: #020617;
-    }
-
-    .video-modal-player {
-      width: 100%;
-      height: auto;
-      display: block;
-      outline: none;
-    }
-
     .video-modal-tabs {
       display: inline-flex;
       border-radius: 999px;
@@ -734,6 +713,27 @@
 
     .video-modal-panel.is-active {
       display: block;
+    }
+
+    .video-modal-body {
+      margin-top: 10px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(15, 23, 42, 0.8);
+      background: #020617;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
+    }
+
+    html[data-theme="light"] .video-modal-body {
+      border-color: rgba(15, 23, 42, 0.7);
+      background: #020617;
+    }
+
+    .video-modal-player {
+      width: 100%;
+      height: auto;
+      display: block;
+      outline: none;
     }
 
     .video-list {
@@ -802,7 +802,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo-image">
-          <img src="https://cdn.discordapp.com/attachments/1414028162794262628/1452754352329724055/oGzvoyT.png?ex=6988442c&is=6986f2ac&hm=55bbf982266cd15e868a221a060123f7f14e84350abbb9f2b7dfd562afd44c09&" alt="TGK server logo">
+          <img src="https://cdn.discordapp.com/attachments/1414028162794262628/1452754352329724055/oGzvoyT.png" alt="TGK server logo">
         </div>
         <div>
           <div class="logo-text-main">TGK</div>
@@ -870,9 +870,10 @@
 
         <div class="members-row">
           <div class="member-avatars">
-            <img src="https://cdn.discordapp.com/avatars/809492510157570139/45929d60dc96dd45128adb7df327c7b4.webp?size=32" alt="member 1">
-            <img src="https://cdn.discordapp.com/avatars/1139218286215712908/4f3ae42c38a6c4ddc15a9888e874df95.webp?size=24" alt="member 2">
-            <img src="https://cdn.discordapp.com/avatars/310015112398503947/55b067e8647303cc71e6932d604b8d9a.webp?size=32" alt="member 3">
+            <!-- сюда подставит API -->
+            <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="member 1">
+            <img src="https://cdn.discordapp.com/embed/avatars/1.png" alt="member 2">
+            <img src="https://cdn.discordapp.com/embed/avatars/2.png" alt="member 3">
           </div>
           <div>
             <div class="members-count">Десятки участников уже с нами</div>
@@ -1040,112 +1041,112 @@
     })();
   </script>
 
-  <!-- логика модалки, вкладок и базы видео -->
+  <!-- логика модалки + заполнение видео/фото из API -->
   <script>
     (function () {
-      // сюда просто добавляешь новые ролики
-      const videos = [
-        {
-          id: 'main',
-          title: 'Клип с сервера (общая атмосфера)',
-          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469425702615908455/Clipchamp_1.mp4?ex=69884594&is=6986f414&hm=44a5e88a4826bbfe14270dc993924968e6c3dca776c695a82a77b3efb4b39325&'
-        },
-        {
-          id: 'irl1',
-          title: 'IRL движ TGK #1',
-          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469740408215961763/2024_12_19_14_31_IMG_0768.MOV?ex=6988c1eb&is=6987706b&hm=48e7b3780e0dba44b730c5736b91afc477fe5ce98c96c662c2c16696c574b84a&'
-        },
-        {
-          id: 'irl2',
-          title: 'IRL движ TGK #2',
-          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469740105303593081/2024_12_12_12_58_IMG_0674.MOV?ex=6988c1a3&is=69877023&hm=0ed4a67a1ec52695c8b0e044be314181468defd64f8c9adc303363fc1835fc6a&'
-        },
-        {
-          id: 'clip1',
-          title: 'Моменты с сервера #1',
-          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1469216276969951375/IMG_2814.mov?ex=69882b49&is=6986d9c9&hm=d28e164c6f2b9b061c4382277cdad664f20ebafe81bcabc607ce9d4ee0e6a8e3&'
-        },
-        {
-          id: 'clip2',
-          title: 'Моменты с сервера #2',
-          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1468274588126412992/IMG_2643.mov?ex=6988b2c5&is=69876145&hm=7b1d376af45c81ffdd388898810725592414b449d4331242c0ace64125bb250d&'
-        },
-        {
-          id: 'clip3',
-          title: 'Моменты с сервера #3',
-          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1468263608231133295/IMG_2694.mov?ex=6988a88b&is=6987570b&hm=7c4eae5e3ecd251473847ca6a3623f67567769aa71bb3231a52766c413fcd151&'
-        }
-      ];
-
       const modal = document.getElementById('videoModal');
       const openBtn = document.querySelector('.btn-secondary');
       const closeBtn = document.getElementById('videoModalClose');
-      const video = document.getElementById('tgkVideo');
-      const videoList = document.getElementById('videoList');
+      const videoEl = document.getElementById('tgkVideo');
+      const videoListEl = document.getElementById('videoList');
+      const photoGrid = document.getElementById('photoGrid');
       const tabs = document.querySelectorAll('.video-modal-tab');
       const panels = document.querySelectorAll('.video-modal-panel');
 
-      if (!modal || !openBtn || !closeBtn || !video || !videoList) return;
+      let videos = [];
+      let photos = [];
+      let currentVideoId = null;
 
-      let currentVideoId = videos[0]?.id;
+      function renderVideos() {
+        videoListEl.innerHTML = '';
+        if (!videos.length) {
+          videoListEl.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">Пока нет видосов, скоро добавим :)</span>';
+          videoEl.removeAttribute('src');
+          return;
+        }
 
-      // создаём чипы видео
-      videos.forEach((v, index) => {
-        const chip = document.createElement('button');
-        chip.type = 'button';
-        chip.className = 'video-chip' + (index === 0 ? ' is-active' : '');
-        chip.dataset.videoId = v.id;
-        chip.innerHTML = `
-          <span class="video-chip-dot"></span>
-          <span>${v.title}</span>
-        `;
-        chip.addEventListener('click', () => {
-          setVideo(v.id);
+        videos.forEach((v, index) => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'video-chip' + (index === 0 ? ' is-active' : '');
+          chip.dataset.videoId = String(index);
+          chip.innerHTML = `
+            <span class="video-chip-dot"></span>
+            <span>${v.title || 'Видео с сервера'}</span>
+          `;
+          chip.addEventListener('click', () => {
+            setVideo(index);
+          });
+          videoListEl.appendChild(chip);
         });
-        videoList.appendChild(chip);
-      });
 
-      function setVideo(id) {
-        const target = videos.find(v => v.id === id);
-        if (!target) return;
-        currentVideoId = id;
+        setVideo(0);
+      }
+
+      function setVideo(idx) {
+        if (!videos[idx]) return;
+        currentVideoId = idx;
 
         document.querySelectorAll('.video-chip').forEach(chip => {
-          chip.classList.toggle('is-active', chip.dataset.videoId === id);
+          chip.classList.toggle('is-active', chip.dataset.videoId === String(idx));
         });
 
-        const wasPlaying = !video.paused;
-        video.pause();
-        video.src = target.url;
-        video.load();
+        const wasPlaying = videoEl && !videoEl.paused;
+        if (!videoEl) return;
+
+        videoEl.pause();
+        videoEl.src = videos[idx].url;
+        videoEl.load();
         if (wasPlaying) {
-          video.play().catch(() => {});
+          videoEl.play().catch(() => {});
         }
+      }
+
+      function renderPhotos() {
+        photoGrid.innerHTML = '';
+        if (!photos.length) {
+          photoGrid.innerHTML = `
+            <div class="photo-grid-empty">
+              Тут скоро появятся фотки с сервера TGK :)
+            </div>
+          `;
+          return;
+        }
+
+        photos.forEach(p => {
+          const img = document.createElement('img');
+          img.src = p.url;
+          img.alt = p.title || 'Фото с сервера TGK';
+          photoGrid.appendChild(img);
+        });
       }
 
       function openModal() {
         modal.classList.add('is-open');
-        setVideo(currentVideoId || videos[0]?.id);
-        try {
-          video.currentTime = 0;
-          video.play();
-        } catch (e) {}
+        if (videoEl && currentVideoId !== null) {
+          try {
+            videoEl.currentTime = 0;
+            videoEl.play();
+          } catch (e) {}
+        }
       }
 
       function closeModal() {
         modal.classList.remove('is-open');
-        try {
-          video.pause();
-        } catch (e) {}
+        if (videoEl) {
+          try {
+            videoEl.pause();
+          } catch (e) {}
+        }
       }
+
+      if (!modal || !openBtn || !closeBtn) return;
 
       openBtn.addEventListener('click', openModal);
       closeBtn.addEventListener('click', closeModal);
 
       modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          closeModal();
-        }
+        if (e.target === modal) closeModal();
       });
 
       document.addEventListener('keydown', (e) => {
@@ -1154,7 +1155,6 @@
         }
       });
 
-      // переключение вкладок
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
           const target = tab.dataset.tab;
@@ -1164,12 +1164,24 @@
           });
         });
       });
+
+      // экспорт функций, чтобы их вызывать после fetch
+      window.__tgkMedia = {
+        setVideos: (arr) => {
+          videos = Array.isArray(arr) ? arr : [];
+          renderVideos();
+        },
+        setPhotos: (arr) => {
+          photos = Array.isArray(arr) ? arr : [];
+          renderPhotos();
+        }
+      };
     })();
   </script>
 
-  <!-- данные от бота -->
+  <!-- данные от бота (онлайн, аватары, видео и фото) -->
   <script>
-    const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status'; /* замени на реальный URL */
+    const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status';
 
     fetch(TGK_API_URL)
       .then(r => r.json())
@@ -1190,6 +1202,11 @@
             img.alt = m.name;
             container.appendChild(img);
           });
+        }
+
+        if (window.__tgkMedia) {
+          window.__tgkMedia.setVideos(data.videos || []);
+          window.__tgkMedia.setPhotos(data.photos || []);
         }
       })
       .catch(console.error);
