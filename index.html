@@ -687,6 +687,114 @@
       display: block;
       outline: none;
     }
+
+    .video-modal-tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      padding: 3px;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    html[data-theme="light"] .video-modal-tabs {
+      background: rgba(15, 23, 42, 0.05);
+    }
+
+    .video-modal-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .video-modal-tab.is-active {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    html[data-theme="light"] .video-modal-tab.is-active {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+    }
+
+    .video-modal-content {
+      margin-top: 6px;
+    }
+
+    .video-modal-panel {
+      display: none;
+    }
+
+    .video-modal-panel.is-active {
+      display: block;
+    }
+
+    .video-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .video-chip {
+      flex-shrink: 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .video-chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #38bdf8;
+    }
+
+    .video-chip.is-active {
+      background: rgba(129, 140, 248, 0.18);
+      border-color: rgba(129, 140, 248, 0.9);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .photo-grid img {
+      width: 100%;
+      border-radius: 16px;
+      object-fit: cover;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.9);
+    }
+
+    .photo-grid-empty {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.7);
+    }
   </style>
 </head>
 <body>
@@ -762,7 +870,6 @@
 
         <div class="members-row">
           <div class="member-avatars">
-            <!-- по умолчанию — заглушки, бот потом заменит -->
             <img src="https://cdn.discordapp.com/avatars/809492510157570139/45929d60dc96dd45128adb7df327c7b4.webp?size=32" alt="member 1">
             <img src="https://cdn.discordapp.com/avatars/1139218286215712908/4f3ae42c38a6c4ddc15a9888e874df95.webp?size=24" alt="member 2">
             <img src="https://cdn.discordapp.com/avatars/310015112398503947/55b067e8647303cc71e6932d604b8d9a.webp?size=32" alt="member 3">
@@ -847,22 +954,41 @@
       </section>
     </main>
 
-    <!-- видео‑модалка -->
+    <!-- модалка атмосферы -->
     <div class="video-modal-backdrop" id="videoModal">
       <div class="video-modal">
-        <button class="video-modal-close" type="button" id="videoModalClose" aria-label="Закрыть видео">
+        <button class="video-modal-close" type="button" id="videoModalClose" aria-label="Закрыть">
           ✕
         </button>
+
         <div class="video-modal-header">
           <span class="video-modal-chip">атмосфера TGK</span>
           <h2>Как у нас проходит вечер</h2>
-          <p>Короткий клип прямо с сервера: игры, болтовня и тот самый ламповый вайб.</p>
+          <p>Клипы и фотки прямо с сервера — катки, созвоны и живой движ.</p>
         </div>
-        <div class="video-modal-body">
-          <video id="tgkVideo" class="video-modal-player" controls preload="metadata">
-            <source src="https://cdn.discordapp.com/attachments/1405603776659849360/1469425702615908455/Clipchamp_1.mp4?ex=69884594&is=6986f414&hm=44a5e88a4826bbfe14270dc993924968e6c3dca776c695a82a77b3efb4b39325&" type="video/mp4">
-            Ваш браузер не поддерживает воспроизведение видео.
-          </video>
+
+        <div class="video-modal-tabs">
+          <button class="video-modal-tab is-active" data-tab="videos" type="button">Видео</button>
+          <button class="video-modal-tab" data-tab="photos" type="button">Фото</button>
+        </div>
+
+        <div class="video-modal-content">
+          <!-- вкладка Видео -->
+          <div class="video-modal-panel is-active" data-panel="videos">
+            <div class="video-list" id="videoList"></div>
+            <div class="video-modal-body">
+              <video id="tgkVideo" class="video-modal-player" controls preload="metadata"></video>
+            </div>
+          </div>
+
+          <!-- вкладка Фото -->
+          <div class="video-modal-panel" data-panel="photos">
+            <div class="photo-grid" id="photoGrid">
+              <div class="photo-grid-empty">
+                Тут скоро появятся фотки с сервера TGK :)
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -914,18 +1040,92 @@
     })();
   </script>
 
-  <!-- логика видео‑модалки -->
+  <!-- логика модалки, вкладок и базы видео -->
   <script>
     (function () {
+      // сюда просто добавляешь новые ролики
+      const videos = [
+        {
+          id: 'main',
+          title: 'Клип с сервера (общая атмосфера)',
+          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469425702615908455/Clipchamp_1.mp4?ex=69884594&is=6986f414&hm=44a5e88a4826bbfe14270dc993924968e6c3dca776c695a82a77b3efb4b39325&'
+        },
+        {
+          id: 'irl1',
+          title: 'IRL движ TGK #1',
+          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469740408215961763/2024_12_19_14_31_IMG_0768.MOV?ex=6988c1eb&is=6987706b&hm=48e7b3780e0dba44b730c5736b91afc477fe5ce98c96c662c2c16696c574b84a&'
+        },
+        {
+          id: 'irl2',
+          title: 'IRL движ TGK #2',
+          url: 'https://cdn.discordapp.com/attachments/1405603776659849360/1469740105303593081/2024_12_12_12_58_IMG_0674.MOV?ex=6988c1a3&is=69877023&hm=0ed4a67a1ec52695c8b0e044be314181468defd64f8c9adc303363fc1835fc6a&'
+        },
+        {
+          id: 'clip1',
+          title: 'Моменты с сервера #1',
+          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1469216276969951375/IMG_2814.mov?ex=69882b49&is=6986d9c9&hm=d28e164c6f2b9b061c4382277cdad664f20ebafe81bcabc607ce9d4ee0e6a8e3&'
+        },
+        {
+          id: 'clip2',
+          title: 'Моменты с сервера #2',
+          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1468274588126412992/IMG_2643.mov?ex=6988b2c5&is=69876145&hm=7b1d376af45c81ffdd388898810725592414b449d4331242c0ace64125bb250d&'
+        },
+        {
+          id: 'clip3',
+          title: 'Моменты с сервера #3',
+          url: 'https://cdn.discordapp.com/attachments/1138754624606699530/1468263608231133295/IMG_2694.mov?ex=6988a88b&is=6987570b&hm=7c4eae5e3ecd251473847ca6a3623f67567769aa71bb3231a52766c413fcd151&'
+        }
+      ];
+
       const modal = document.getElementById('videoModal');
       const openBtn = document.querySelector('.btn-secondary');
       const closeBtn = document.getElementById('videoModalClose');
       const video = document.getElementById('tgkVideo');
+      const videoList = document.getElementById('videoList');
+      const tabs = document.querySelectorAll('.video-modal-tab');
+      const panels = document.querySelectorAll('.video-modal-panel');
 
-      if (!modal || !openBtn || !closeBtn || !video) return;
+      if (!modal || !openBtn || !closeBtn || !video || !videoList) return;
+
+      let currentVideoId = videos[0]?.id;
+
+      // создаём чипы видео
+      videos.forEach((v, index) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'video-chip' + (index === 0 ? ' is-active' : '');
+        chip.dataset.videoId = v.id;
+        chip.innerHTML = `
+          <span class="video-chip-dot"></span>
+          <span>${v.title}</span>
+        `;
+        chip.addEventListener('click', () => {
+          setVideo(v.id);
+        });
+        videoList.appendChild(chip);
+      });
+
+      function setVideo(id) {
+        const target = videos.find(v => v.id === id);
+        if (!target) return;
+        currentVideoId = id;
+
+        document.querySelectorAll('.video-chip').forEach(chip => {
+          chip.classList.toggle('is-active', chip.dataset.videoId === id);
+        });
+
+        const wasPlaying = !video.paused;
+        video.pause();
+        video.src = target.url;
+        video.load();
+        if (wasPlaying) {
+          video.play().catch(() => {});
+        }
+      }
 
       function openModal() {
         modal.classList.add('is-open');
+        setVideo(currentVideoId || videos[0]?.id);
         try {
           video.currentTime = 0;
           video.play();
@@ -953,12 +1153,23 @@
           closeModal();
         }
       });
+
+      // переключение вкладок
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          tabs.forEach(t => t.classList.toggle('is-active', t === tab));
+          panels.forEach(panel => {
+            panel.classList.toggle('is-active', panel.dataset.panel === target);
+          });
+        });
+      });
     })();
   </script>
 
-  <!-- подтягиваем данные от бота -->
+  <!-- данные от бота -->
   <script>
-    const TGK_API_URL = 'https://bottgk-production.up.railway.app/tgk-status'; /* замени на реальный URL Railway */
+    const TGK_API_URL = 'https://ТВОЙ-сервис.up.railway.app/tgk-status'; /* замени на реальный URL */
 
     fetch(TGK_API_URL)
       .then(r => r.json())
