@@ -802,7 +802,8 @@
     <header>
       <div class="logo-wrap">
         <div class="logo-image">
-          <img src="https://cdn.discordapp.com/attachments/1414028162794262628/1452754352329724055/oGzvoyT.png" alt="TGK server logo">
+          <!-- подставь сюда новый рабочий URL логотипа -->
+          <img src="https://cdn.discordapp.com/attachments/1414028162794262628/1452754352329724055/oGzvoyT.png?ex=6988442c&is=6986f2ac&hm=55bbf982266cd15e868a221a060123f7f14e84350abbb9f2b7dfd562afd44c09&" alt="TGK server logo">
         </div>
         <div>
           <div class="logo-text-main">TGK</div>
@@ -870,7 +871,7 @@
 
         <div class="members-row">
           <div class="member-avatars">
-            <!-- сюда подставит API -->
+            <!-- дефолт, потом заменится данными от API -->
             <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="member 1">
             <img src="https://cdn.discordapp.com/embed/avatars/1.png" alt="member 2">
             <img src="https://cdn.discordapp.com/embed/avatars/2.png" alt="member 3">
@@ -1165,7 +1166,6 @@
         });
       });
 
-      // экспорт функций, чтобы их вызывать после fetch
       window.__tgkMedia = {
         setVideos: (arr) => {
           videos = Array.isArray(arr) ? arr : [];
